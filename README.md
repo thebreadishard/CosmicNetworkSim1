@@ -1,13 +1,12 @@
 # 🌌 Cosmic Network Simulator
 
-A real-time 3D visualization of galactic civilizations emerging and connecting through radio wave communication across three spiral galaxies containing ~30,000 stars.
+A real-time 3D visualization of galactic civilizations emerging and connecting through radio wave communication across three spiral galaxies containing tens of thousands of stars.
 
 ![Cosmic Network Simulator](./docs/screenshot.png)
-<!-- TODO: Add actual screenshot after first run -->
 
 ## ✨ Features
 
-- **Three Distinct Galaxies**: Middle-aged 3-arm spiral (10K stars), old 2-arm tight spiral (10K stars), and young 4-arm loose spiral (10K stars) positioned in 3D space
+- **Three Distinct Galaxies**: Middle-aged 3-arm spiral, old 2-arm tight spiral, and young 4-arm loose spiral, each with unique characteristics and positioned in 3D space
 - **Dynamic Civilization Emergence**: Stars randomly develop intelligent life based on configurable probability (0.05% per frame)
 - **Radio Wave Propagation**: Visual expanding radio waves emitted from active civilizations (max 30 units radius)
 - **Automatic Network Formation**: Connections form via two-way handshake when both stars have been active long enough for light-speed round-trip communication
@@ -16,7 +15,7 @@ A real-time 3D visualization of galactic civilizations emerging and connecting t
 - **Star Lifecycle**: Stars age, fade, and die (60-180 sec lifetime) with rare supernova events (0.05% chance at death)
 - **Low-Rate Star Birth**: New stars spawn at 10% replacement rate, allowing simulation to eventually end
 - **Fully Configurable**: 50+ parameters adjustable via in-app settings UI
-- **Performance Optimized**: Handles 30,000 stars with spatial partitioning (O(n) collision detection)
+- **Performance Optimized**: Handles tens of thousands of stars with spatial partitioning (O(n) collision detection)
 
 ## 🚀 Quick Start
 
@@ -96,7 +95,7 @@ src/
 
 - **Spatial Partitioning**: O(n²) → O(n) for wave/dust/connection checks using grid-based spatial hashing
 - **Smart Connection Logic**: Two-way handshake timing eliminates need for wave intersection testing
-- **Dynamic Lighting**: Only active stars emit point lights (~99.5% reduction, ~100 of 30K stars)
+- **Dynamic Lighting**: Only active stars emit point lights (~99.5% reduction, only active civilizations)
 - **Static Dust Clouds**: 270 clouds with no movement calculations
 - **Resource Management**: Proper Three.js geometry/material disposal prevents memory leaks
 
@@ -142,7 +141,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🐛 Known Issues
 
-- Performance may degrade with >40,000 stars on lower-end hardware
+- Performance may degrade with very large star counts (>40K) on lower-end hardware
 - Spiral arm glow uses additive blending which may appear dim on some displays
 - Star death can cause brief frame drops when removing many stars simultaneously
 

@@ -1,7 +1,7 @@
 {
   "name": "cosmic-network-sim",
   "version": "1.0.0",
-  "description": "Real-time 3D visualization of galactic civilizations emerging and connecting through radio waves across 42,000 stars",
+  "description": "Real-time 3D visualization of galactic civilizations emerging and connecting through radio waves across multiple spiral galaxies",
   "type": "module",
   "keywords": [
     "three.js",
