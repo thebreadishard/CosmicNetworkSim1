@@ -19,6 +19,17 @@ class CosmicNetworkSimulator {
   private showSupernovae: boolean;
   private flashOverlay: HTMLDivElement;
   private hasSimulationStarted: boolean;
+  
+  // Performance: Cache DOM elements instead of querying every frame
+  private statsElements = {
+    starCount: null as HTMLElement | null,
+    activeStars: null as HTMLElement | null,
+    waveCount: null as HTMLElement | null,
+    connectionCount: null as HTMLElement | null,
+    cameraPos: null as HTMLElement | null
+  };
+  private lastStatsUpdate: number = 0;
+  private statsUpdateInterval: number = 0.25; // Update 4 times per second instead of 60
 
   constructor() {
     this.clock = new THREE.Clock();
@@ -53,8 +64,17 @@ class CosmicNetworkSimulator {
     }
     
     this.setupControls();
+    this.cacheStatsElements();
     window.addEventListener('resize', () => this.onWindowResize());
     this.animate();
+  }
+  
+  private cacheStatsElements(): void {
+    this.statsElements.starCount = document.getElementById('star-count');
+    this.statsElements.activeStars = document.getElementById('active-stars');
+    this.statsElements.waveCount = document.getElementById('wave-count');
+    this.statsElements.connectionCount = document.getElementById('connection-count');
+    this.statsElements.cameraPos = document.getElementById('camera-pos');
   }
 
   private createScene(): THREE.Scene {
@@ -363,19 +383,17 @@ class CosmicNetworkSimulator {
   private updateStats(): void {
     const stats = this.networkManager.getStats();
     
-    const starCountEl = document.getElementById('star-count');
-    const activeStarsEl = document.getElementById('active-stars');
-    const waveCountEl = document.getElementById('wave-count');
-    const connectionCountEl = document.getElementById('connection-count');
-    const cameraPosEl = document.getElementById('camera-pos');
-    
-    if (starCountEl) starCountEl.textContent = stats.starCount.toString();
-    if (activeStarsEl) activeStarsEl.textContent = stats.activeStars.toString();
-    if (waveCountEl) waveCountEl.textContent = stats.waveCount.toString();
-    if (connectionCountEl) connectionCountEl.textContent = stats.connectionCount.toString();
-    if (cameraPosEl) {
+    if (this.statsElements.starCount) 
+      this.statsElements.starCount.textContent = stats.starCount.toString();
+    if (this.statsElements.activeStars) 
+      this.statsElements.activeStars.textContent = stats.activeStars.toString();
+    if (this.statsElements.waveCount) 
+      this.statsElements.waveCount.textContent = stats.waveCount.toString();
+    if (this.statsElements.connectionCount) 
+      this.statsElements.connectionCount.textContent = stats.connectionCount.toString();
+    if (this.statsElements.cameraPos) {
       const pos = this.camera.position;
-      cameraPosEl.textContent = `${Math.round(pos.x)}, ${Math.round(pos.y)}, ${Math.round(pos.z)}`;
+      this.statsElements.cameraPos.textContent = `${Math.round(pos.x)}, ${Math.round(pos.y)}, ${Math.round(pos.z)}`;
     }
   }
 
@@ -413,13 +431,20 @@ class CosmicNetworkSimulator {
           activeStarsEl.parentElement.style.color = '#ff6b6b';
         }
       }
+      
+      // Update stats display at reduced frequency (4Hz instead of 60Hz)
+      this.lastStatsUpdate += deltaTime * this.timeScale;
+      if (this.lastStatsUpdate >= this.statsUpdateInterval) {
+        this.updateStats();
+        this.lastStatsUpdate = 0;
+      }
+    } else {
+      // Update stats once when paused
+      this.updateStats();
     }
     
     // Update controls
     this.controls.update();
-    
-    // Update stats display
-    this.updateStats();
     
     // Render
     this.renderer.render(this.scene, this.camera);

@@ -171,6 +171,7 @@ export class Star {
     // Check civilization emergence
     if (!this.isActive && !this.hasDormantPlanet && this.canSupportLife) {
       // Don't activate stars in central bulge (too much radiation)
+      // Cache distance calculation for reuse
       const dx = this.position.x - this.galaxyCenter.x;
       const dz = this.position.z - this.galaxyCenter.z;
       const distanceFromCenter = Math.sqrt(dx * dx + dz * dz);
@@ -208,10 +209,10 @@ export class Star {
       this.emissionTimer -= deltaTime;
       if (this.emissionTimer <= 0) {
         // Only emit if not in central bulge (too much radiation)
-        const distanceFromCenter = Math.sqrt(
-          this.position.x * this.position.x + 
-          this.position.z * this.position.z
-        );
+        // Reuse distance calculation from activation check
+        const dx = this.position.x - this.galaxyCenter.x;
+        const dz = this.position.z - this.galaxyCenter.z;
+        const distanceFromCenter = Math.sqrt(dx * dx + dz * dz);
         if (distanceFromCenter >= this.settings.minDistanceFromCenter) {
           this.isEmitting = true;
         }
