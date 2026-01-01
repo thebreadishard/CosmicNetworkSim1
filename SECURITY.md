@@ -20,15 +20,7 @@ We will respond within 48 hours and provide regular updates.
 
 ## Known Issues
 
-### Development Dependencies
-
-The project currently uses Vite 5.x which has a moderate severity vulnerability (GHSA-67mh-4wv8-2f99) in its dependency `esbuild`. 
-
-**Impact**: This vulnerability only affects the development server and does not impact production builds.
-
-**Status**: Monitoring for Vite 6.x stable release. The issue does not affect production deployments.
-
-**Workaround**: Do not expose the development server to untrusted networks.
+None currently. All dependencies are up to date with no known vulnerabilities.
 
 ## Security Best Practices
 
