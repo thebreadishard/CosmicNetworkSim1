@@ -369,7 +369,6 @@ export class SimulationSettings {
     this.maxStars = Math.max(1000, Math.round(this.maxStars));
     this.initialStarCount = Math.max(100, Math.round(this.initialStarCount));
     this.initialDustCloudCount = Math.max(10, Math.round(this.initialDustCloudCount));
-    this.galaxyRadius = Math.max(50, this.galaxyRadius);
     this.backgroundStarCount = Math.max(100, Math.round(this.backgroundStarCount));
 
     // Clamp new numeric parameters

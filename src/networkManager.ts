@@ -337,7 +337,7 @@ export class NetworkManager {
         const galaxyIndex = Math.floor(Math.random() * this.lastGalaxies.length);
         const galaxy = this.lastGalaxies[galaxyIndex];
         if (galaxy.config) {
-          this.createSpiralGalaxy(galaxy.config, 1); // Spawn just 1 star
+          this.createSpiralGalaxy(galaxy.center, 1, galaxy.radius, galaxy.arms, galaxy.config); // Spawn just 1 star
         }
       }
     }

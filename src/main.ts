@@ -410,7 +410,7 @@ class CosmicNetworkSimulator {
     
     // Update simulation with time scaling and pause control
     if (!this.isPaused) {
-      this.networkManager.update(deltaTime * this.timeScale, this.camera);
+      this.networkManager.update(deltaTime * this.timeScale);
       
       const stats = this.networkManager.getStats();
       
