@@ -100,7 +100,8 @@ export class NetworkManager {
           armIndex,
           config.armCurveFactor,
           config.armWidthFactor,
-          this.scene
+          this.scene,
+          config.rotation // Pass rotation to arm glow
         );
       }
       this.armGlows.push(armGlow);
@@ -108,6 +109,13 @@ export class NetworkManager {
   }
 
   generateDustClouds(count: number) {
+    // Helper function to rotate a position by Euler angles
+    const rotatePosition = (pos: Vector3, rotation: { x: number; y: number; z: number }): Vector3 => {
+      const euler = new THREE.Euler(rotation.x, rotation.y, rotation.z, 'XYZ');
+      const quaternion = new THREE.Quaternion().setFromEuler(euler);
+      return pos.clone().applyQuaternion(quaternion);
+    };
+    
     // If we have lastGalaxies recorded, place clouds aligned to their arms
     if (this.lastGalaxies && this.lastGalaxies.length > 0) {
       for (const g of this.lastGalaxies) {
@@ -126,12 +134,25 @@ export class NetworkManager {
             const angle = baseAngle + twist * (r / g.radius) + (Math.random() - 0.5) * this.settings.dustCloudAngleJitter;
 
             const perp = (Math.random() - 0.5) * armWidth;
-            const x = g.center.x + Math.cos(angle) * r - Math.sin(angle) * perp;
-            const z = g.center.z + Math.sin(angle) * r + Math.cos(angle) * perp;
-            const y = g.center.y + (Math.random() - 0.5) * this.settings.diskThickness * this.settings.dustCloudThicknessFactor;
+            let localPos = new Vector3(
+              Math.cos(angle) * r - Math.sin(angle) * perp,
+              (Math.random() - 0.5) * this.settings.diskThickness * this.settings.dustCloudThicknessFactor,
+              Math.sin(angle) * r + Math.cos(angle) * perp
+            );
+            
+            // Apply galaxy rotation if config provided
+            if (g.config?.rotation) {
+              localPos = rotatePosition(localPos, g.config.rotation);
+            }
+            
+            const cloudPos = new Vector3(
+              g.center.x + localPos.x,
+              g.center.y + localPos.y,
+              g.center.z + localPos.z
+            );
 
             const rad = this.settings.dustCloudMinRadius + Math.random() * this.settings.dustCloudRadiusRange;
-            const cloud = new DustCloud(new Vector3(x, y, z), rad);
+            const cloud = new DustCloud(cloudPos, rad);
             this.dustClouds.push(cloud);
             this.dustGrid.insert(cloud.position, cloud);
             this.scene.add(cloud.mesh);
@@ -175,6 +196,13 @@ export class NetworkManager {
    * - config: optional per-galaxy configuration overrides
    */
   private createSpiralGalaxy(center: Vector3, count: number, radius: number, arms: number, config?: GalaxyConfig) {
+    // Helper function to rotate a position by Euler angles
+    const rotatePosition = (pos: Vector3, rotation: { x: number; y: number; z: number }): Vector3 => {
+      const euler = new THREE.Euler(rotation.x, rotation.y, rotation.z, 'XYZ');
+      const quaternion = new THREE.Quaternion().setFromEuler(euler);
+      return pos.clone().applyQuaternion(quaternion);
+    };
+    
     // Use per-galaxy config if provided, otherwise fall back to global settings
     const twist = config?.armCurveFactor ?? this.settings.armCurveFactor;
     const armWidthFactor = config?.armWidthFactor ?? this.settings.armWidthFactor;
@@ -193,9 +221,20 @@ export class NetworkManager {
       const phi = Math.acos(2 * Math.random() - 1);
       const r = Math.pow(Math.random(), 0.5) * this.settings.centralBulgeRadius;
       
-      const x = center.x + r * Math.sin(phi) * Math.cos(theta);
-      const y = center.y + r * Math.sin(phi) * Math.sin(theta);
-      const z = center.z + r * Math.cos(phi);
+      let localPos = new Vector3(
+        r * Math.sin(phi) * Math.cos(theta),
+        r * Math.sin(phi) * Math.sin(theta),
+        r * Math.cos(phi)
+      );
+      
+      // Apply galaxy rotation if config provided
+      if (config?.rotation) {
+        localPos = rotatePosition(localPos, config.rotation);
+      }
+      
+      const x = center.x + localPos.x;
+      const y = center.y + localPos.y;
+      const z = center.z + localPos.z;
       
       // Bulge stars follow galaxy age profile, mostly old
       const profile = ageProfile === 'young' ? (Math.random() < this.settings.youngStarBulgeProbability ? 'young' : 'middle-aged') : 
@@ -218,9 +257,20 @@ export class NetworkManager {
 
       // position with small perpendicular noise to create arm thickness
       const perpNoise = (Math.random() - 0.5) * armWidth;
-      const x = center.x + Math.cos(angle) * r - Math.sin(angle) * perpNoise;
-      const z = center.z + Math.sin(angle) * r + Math.cos(angle) * perpNoise;
-      const y = center.y + (Math.random() - 0.5) * this.settings.diskThickness;
+      let localPos = new Vector3(
+        Math.cos(angle) * r - Math.sin(angle) * perpNoise,
+        (Math.random() - 0.5) * this.settings.diskThickness,
+        Math.sin(angle) * r + Math.cos(angle) * perpNoise
+      );
+      
+      // Apply galaxy rotation if config provided
+      if (config?.rotation) {
+        localPos = rotatePosition(localPos, config.rotation);
+      }
+      
+      const x = center.x + localPos.x;
+      const y = center.y + localPos.y;
+      const z = center.z + localPos.z;
 
       // Star color distribution based on galaxy age profile
       let profile: 'young' | 'middle-aged' | 'old';

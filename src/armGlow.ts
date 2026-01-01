@@ -48,6 +48,7 @@ export class ArmGlow {
    * @param armIndex Which arm to generate glow for (0 to arms-1)
    * @param armCurveFactor Spiral tightness
    * @param armWidthFactor Arm thickness
+   * @param rotation Optional galaxy rotation in radians
    * @param scene Scene to add sprites to
    */
   generateArmGlow(
@@ -57,7 +58,8 @@ export class ArmGlow {
     armIndex: number,
     armCurveFactor: number,
     armWidthFactor: number,
-    scene: THREE.Scene
+    scene: THREE.Scene,
+    rotation?: { x: number; y: number; z: number }
   ): void {
     const baseAngle = (armIndex / arms) * Math.PI * 2;
     const glowCount = Math.floor(radius / this.settings.armGlowSpacing); // One glow sprite per spacing units
@@ -80,11 +82,25 @@ export class ArmGlow {
 
       const sprite = new THREE.Sprite(spriteMaterial);
       
-      // Position along the spiral arm
-      const x = center.x + Math.cos(angle) * r;
-      const z = center.z + Math.sin(angle) * r;
-      const y = center.y;
-      sprite.position.set(x, y, z);
+      // Calculate local position along the spiral arm
+      const localPos = new THREE.Vector3(
+        Math.cos(angle) * r,
+        0,
+        Math.sin(angle) * r
+      );
+      
+      // Apply galaxy rotation if provided
+      if (rotation) {
+        const euler = new THREE.Euler(rotation.x, rotation.y, rotation.z, 'XYZ');
+        const quaternion = new THREE.Quaternion().setFromEuler(euler);
+        localPos.applyQuaternion(quaternion);
+      }
+      
+      sprite.position.set(
+        center.x + localPos.x,
+        center.y + localPos.y,
+        center.z + localPos.z
+      );
 
       // Scale based on arm width - larger sprites for thicker arms
       const scale = armWidth * 2.5;

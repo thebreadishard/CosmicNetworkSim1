@@ -304,6 +304,12 @@ class CosmicNetworkSimulator {
         }
       }
     }
+    
+    // Manually load computed getter properties that don't show up in hasOwnProperty
+    const maxConnDistInput = document.getElementById('set-maxConnectionDistance') as HTMLInputElement;
+    if (maxConnDistInput) {
+      maxConnDistInput.value = settings.maxConnectionDistance.toFixed(2);
+    }
   }
   
   private saveSettingsFromModal(): { field: string; error: string }[] {

@@ -15,6 +15,7 @@ export interface GalaxyConfig {
   centralBulgeFraction: number; // Bulge size
   ageProfile: 'young' | 'middle-aged' | 'old'; // Star population age
   starCount: number; // Number of stars in this galaxy
+  rotation: { x: number; y: number; z: number }; // Galaxy orientation in radians
 }
 
 export class SimulationSettings {
@@ -81,7 +82,8 @@ export class SimulationSettings {
       armWidthFactor: 5.5,
       centralBulgeFraction: 0.15,
       ageProfile: 'middle-aged',
-      starCount: 15000
+      starCount: 15000,
+      rotation: { x: 0.2, y: 0.3, z: 0.1 } // Slight tilt for viewing angle
     },
     // Galaxy 1: Larger elliptical-like spiral with tight arms
     {
@@ -92,7 +94,8 @@ export class SimulationSettings {
       armWidthFactor: 4.0,  // Thinner arms
       centralBulgeFraction: 0.25,  // Larger bulge
       ageProfile: 'old',
-      starCount: 10000
+      starCount: 10000,
+      rotation: { x: 1.4, y: -0.5, z: 0.8 } // Nearly edge-on view
     },
     // Galaxy 2: Young barred spiral with loose arms
     {
@@ -103,7 +106,8 @@ export class SimulationSettings {
       armWidthFactor: 6.5,  // Thicker arms
       centralBulgeFraction: 0.10,  // Smaller bulge
       ageProfile: 'young',
-      starCount: 15000
+      starCount: 15000,
+      rotation: { x: -0.6, y: 0.9, z: -0.4 } // Tilted at different angle
     }
   ];
   
