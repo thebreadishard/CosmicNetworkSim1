@@ -30,6 +30,7 @@ class CosmicNetworkSimulator {
   };
   private lastStatsUpdate: number = 0;
   private statsUpdateInterval: number = 0.25; // Update 4 times per second instead of 60
+  private validationSetup: boolean = false; // Track if validation listeners are attached
 
   constructor() {
     this.clock = new THREE.Clock();
@@ -261,6 +262,7 @@ class CosmicNetworkSimulator {
     // Open modal
     settingsBtn.addEventListener('click', () => {
       this.loadSettingsIntoModal();
+      this.setupRealTimeValidation(); // Setup validation when modal opens
       modal.style.display = 'block';
     });
     
@@ -281,6 +283,12 @@ class CosmicNetworkSimulator {
     
     // Save button
     saveBtn?.addEventListener('click', () => {
+      // First check if any fields have validation errors
+      if (!this.checkAllFieldsValid()) {
+        alert('⚠️ Please fix all validation errors (red fields) before saving.');
+        return;
+      }
+      
       const errors = this.saveSettingsFromModal();
       if (errors.length > 0) {
         // Show validation errors - do NOT close modal
@@ -299,9 +307,83 @@ class CosmicNetworkSimulator {
         settings.save();
         this.loadSettingsIntoModal();
         this.clearValidationErrors();
-        alert('✅ Settings reset to defaults!');
+        
+        // Clear real-time validation styling from all inputs
+        const inputs = document.querySelectorAll('.settings-section input[type="number"]') as NodeListOf<HTMLInputElement>;
+        inputs.forEach(input => {
+          input.style.borderColor = '';
+          input.style.backgroundColor = '';
+          input.removeAttribute('data-invalid');
+        });
+        
+        // Show success message after DOM updates
+        setTimeout(() => alert('✅ Settings reset to defaults!'), 0);
       }
     });
+  }
+  
+  private setupRealTimeValidation(): void {
+    // Only setup once to prevent duplicate listeners
+    if (this.validationSetup) return;
+    this.validationSetup = true;
+    
+    const settings = new SimulationSettings();
+    
+    // Get all settings input fields
+    for (const key in settings) {
+      if (settings.hasOwnProperty(key)) {
+        const input = document.getElementById(`set-${key}`) as HTMLInputElement;
+        if (input && input.type === 'number') {
+          // Validate on input change (as user types)
+          input.addEventListener('input', () => this.validateInput(input));
+          // Also validate on blur (when field loses focus)
+          input.addEventListener('blur', () => this.validateInput(input));
+        }
+      }
+    }
+  }
+  
+  private validateInput(input: HTMLInputElement): void {
+    const value = parseFloat(input.value);
+    const min = input.min ? parseFloat(input.min) : -Infinity;
+    const max = input.max ? parseFloat(input.max) : Infinity;
+    
+    // Check if value is invalid (empty, NaN, or out of range)
+    const isEmpty = input.value.trim() === '';
+    const isInvalid = isEmpty || isNaN(value) || value < min || value > max;
+    
+    // Apply or remove error styling
+    if (isInvalid) {
+      input.style.borderColor = '#ff4444';
+      input.style.backgroundColor = 'rgba(255, 68, 68, 0.1)';
+      input.setAttribute('data-invalid', 'true');
+    } else {
+      input.style.borderColor = '';
+      input.style.backgroundColor = '';
+      input.removeAttribute('data-invalid');
+    }
+  }
+  
+  private checkAllFieldsValid(): boolean {
+    const settings = new SimulationSettings();
+    
+    // Check all number input fields
+    for (const key in settings) {
+      if (settings.hasOwnProperty(key)) {
+        const input = document.getElementById(`set-${key}`) as HTMLInputElement;
+        if (input && input.type === 'number' && !input.readOnly) {
+          // Validate the field
+          this.validateInput(input);
+          
+          // Check if it's marked as invalid
+          if (input.getAttribute('data-invalid') === 'true') {
+            return false;
+          }
+        }
+      }
+    }
+    
+    return true;
   }
   
   private loadSettingsIntoModal(): void {
@@ -316,10 +398,17 @@ class CosmicNetworkSimulator {
         const input = document.getElementById(`set-${key}`) as HTMLInputElement;
         if (input) {
           const value = (settings as unknown as Record<string, string | number>)[key];
-          if (input.type === 'color') {
-            input.value = value.toString();
-          } else {
-            input.value = value.toString();
+          
+          // Only load simple types (string/number) - skip complex objects
+          if (typeof value === 'number' || typeof value === 'string') {
+            if (input.type === 'color') {
+              input.value = value.toString();
+            } else {
+              input.value = value.toString();
+            }
+          } else if (value != null) {
+            // Log if we encounter a non-primitive property with an input field
+            console.warn(`Settings: Skipping complex property "${key}" (type: ${typeof value})`);
           }
         }
       }

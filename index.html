@@ -50,7 +50,7 @@
                   <span class="tooltip-text">Probability per second that a dormant star develops a civilization (also used for supernova chance).</span>
                 </span>
               </span>
-              <input type="number" id="set-activationChance" step="0.0001" />
+              <input type="number" id="set-activationChance" required step="0.0001" min="0" />
             </label>
             <label>
               <span class="label-text">
@@ -59,7 +59,7 @@
                   <span class="tooltip-text">Probability per second that an active civilization goes dormant or extinct.</span>
                 </span>
               </span>
-              <input type="number" id="set-deactivationChance" step="0.0001" />
+              <input type="number" id="set-deactivationChance" required step="0.0001" min="0" />
             </label>
           </div>
           
@@ -72,7 +72,7 @@
                   <span class="tooltip-text">Radius of the dense spherical core at galaxy center (high radiation zone).</span>
                 </span>
               </span>
-              <input type="number" id="set-centralBulgeRadius" />
+              <input type="number" id="set-centralBulgeRadius" required min="0" step="0.1" />
             </label>
             <label>
               <span class="label-text">
@@ -81,7 +81,7 @@
                   <span class="tooltip-text">Minimum distance from galaxy center where civilizations can emerge (avoids bulge radiation).</span>
                 </span>
               </span>
-              <input type="number" id="set-minDistanceFromCenter" />
+              <input type="number" id="set-minDistanceFromCenter" required min="0" step="0.1" />
             </label>
             <label>
               <span class="label-text">
@@ -90,7 +90,7 @@
                   <span class="tooltip-text">Maximum radius of the galactic disk where stars are distributed.</span>
                 </span>
               </span>
-              <input type="number" id="set-diskRadius" />
+              <input type="number" id="set-diskRadius" required min="10" step="0.1" />
             </label>
             <label>
               <span class="label-text">
@@ -99,7 +99,7 @@
                   <span class="tooltip-text">Vertical thickness of the galactic disk (height above/below plane).</span>
                 </span>
               </span>
-              <input type="number" id="set-diskThickness" />
+              <input type="number" id="set-diskThickness" required min="0.1" step="0.1" />
             </label>
             <label>
               <span class="label-text">
@@ -108,7 +108,7 @@
                   <span class="tooltip-text">Fraction of stars (0-1) that spawn in the dense central bulge vs spiral arms.</span>
                 </span>
               </span>
-              <input type="number" id="set-centralBulgeFraction" step="0.01" />
+              <input type="number" id="set-centralBulgeFraction" required step="0.01" min="0" max="1" />
             </label>
             <label>
               <span class="label-text">
@@ -117,7 +117,7 @@
                   <span class="tooltip-text">Width of spiral arms relative to distance from center (higher = wider arms).</span>
                 </span>
               </span>
-              <input type="number" id="set-armWidthFactor" step="0.1" />
+              <input type="number" id="set-armWidthFactor" required step="0.1" min="0" />
             </label>
             <label>
               <span class="label-text">
@@ -126,7 +126,7 @@
                   <span class="tooltip-text">How tightly spiral arms curve (higher = tighter spiral).</span>
                 </span>
               </span>
-              <input type="number" id="set-armCurveFactor" step="0.5" />
+              <input type="number" id="set-armCurveFactor" required step="0.5" min="0" />
             </label>
           </div>
           
@@ -139,7 +139,7 @@
                   <span class="tooltip-text">Size multiplier for stars with active civilizations (1.0 = normal size).</span>
                 </span>
               </span>
-              <input type="number" id="set-activeStarScale" step="0.1" />
+              <input type="number" id="set-activeStarScale" required step="0.1" min="0.1" />
             </label>
             <label>
               <span class="label-text">
@@ -148,7 +148,7 @@
                   <span class="tooltip-text">Brightness multiplier for active star colors (higher = brighter).</span>
                 </span>
               </span>
-              <input type="number" id="set-activeStarColorMultiplier" step="0.1" />
+              <input type="number" id="set-activeStarColorMultiplier" required step="0.1" min="0" />
             </label>
             <label>
               <span class="label-text">
@@ -157,7 +157,7 @@
                   <span class="tooltip-text">Intensity of the point light emitted by active stars.</span>
                 </span>
               </span>
-              <input type="number" id="set-activeStarLightIntensity" step="0.5" />
+              <input type="number" id="set-activeStarLightIntensity" required step="0.5" min="0" />
             </label>
           </div>
           
@@ -170,7 +170,7 @@
                   <span class="tooltip-text">Opacity (0-1) of stars behind dust clouds as seen from camera.</span>
                 </span>
               </span>
-              <input type="number" id="set-behindCloudOpacity" step="0.01" />
+              <input type="number" id="set-behindCloudOpacity" required step="0.01" min="0" max="1" />
             </label>
             <label>
               <span class="label-text">
@@ -179,7 +179,7 @@
                   <span class="tooltip-text">Opacity (0-1) of stars physically inside dust clouds.</span>
                 </span>
               </span>
-              <input type="number" id="set-insideCloudOpacity" step="0.01" />
+              <input type="number" id="set-insideCloudOpacity" required step="0.01" min="0" max="1" />
             </label>
             <label>
               <span class="label-text">
@@ -188,7 +188,7 @@
                   <span class="tooltip-text">Normal opacity (0-1) of stars not affected by dust.</span>
                 </span>
               </span>
-              <input type="number" id="set-clearOpacity" step="0.01" />
+              <input type="number" id="set-clearOpacity" required step="0.01" min="0" max="1" />
             </label>
             <label>
               <span class="label-text">
@@ -197,7 +197,7 @@
                   <span class="tooltip-text">Light intensity for stars behind dust clouds (dimmed).</span>
                 </span>
               </span>
-              <input type="number" id="set-behindCloudLightIntensity" step="0.01" />
+              <input type="number" id="set-behindCloudLightIntensity" required step="0.01" min="0" />
             </label>
             <label>
               <span class="label-text">
@@ -206,7 +206,7 @@
                   <span class="tooltip-text">Light intensity for stars inside dust clouds (partially obscured).</span>
                 </span>
               </span>
-              <input type="number" id="set-insideCloudLightIntensity" step="0.01" />
+              <input type="number" id="set-insideCloudLightIntensity" required step="0.01" min="0" />
             </label>
           </div>
           
@@ -219,7 +219,7 @@
                   <span class="tooltip-text">Speed at which radio waves expand from active stars (units per second).</span>
                 </span>
               </span>
-              <input type="number" id="set-waveSpeed" step="0.5" />
+              <input type="number" id="set-waveSpeed" required step="0.5" min="0.1" />
             </label>
             <label>
               <span class="label-text">
@@ -228,7 +228,7 @@
                   <span class="tooltip-text">Maximum expansion radius before waves disappear.</span>
                 </span>
               </span>
-              <input type="number" id="set-waveMaxRadius" />
+              <input type="number" id="set-waveMaxRadius" required min="1" step="1" />
             </label>
             <label>
               <span class="label-text">
@@ -246,7 +246,7 @@
                   <span class="tooltip-text">Opacity (0-1) of radio wave rings (higher = more visible).</span>
                 </span>
               </span>
-              <input type="number" id="set-waveOpacity" step="0.1" />
+              <input type="number" id="set-waveOpacity" required step="0.1" min="0" max="1" />
             </label>
             <label>
               <span class="label-text">
@@ -255,7 +255,7 @@
                   <span class="tooltip-text">Number of line segments forming each wave circle (higher = smoother circles).</span>
                 </span>
               </span>
-              <input type="number" id="set-waveSegments" />
+              <input type="number" id="set-waveSegments" required min="3" step="1" />
             </label>
           </div>
           
@@ -277,7 +277,7 @@
                   <span class="tooltip-text">Fraction (0-1) of dead stars replaced by new stars when population above threshold.</span>
                 </span>
               </span>
-              <input type="number" id="set-starBirthReplacementRatio" step="0.01" />
+              <input type="number" id="set-starBirthReplacementRatio" required step="0.01" min="0" max="1" />
             </label>
             <label>
               <span class="label-text">
@@ -286,7 +286,7 @@
                   <span class="tooltip-text">Minimum star population before death-driven birth activates.</span>
                 </span>
               </span>
-              <input type="number" id="set-starBirthPopulationThreshold" />
+              <input type="number" id="set-starBirthPopulationThreshold" required min="0" step="1" />
             </label>
             <label>
               <span class="label-text">
@@ -295,7 +295,7 @@
                   <span class="tooltip-text">Safety cap on total star population (prevents infinite growth).</span>
                 </span>
               </span>
-              <input type="number" id="set-maxStars" />
+              <input type="number" id="set-maxStars" required min="1000" step="1" />
             </label>
             <label>
               <span class="label-text">
@@ -304,7 +304,7 @@
                   <span class="tooltip-text">Base radius of star sphere meshes (inactive stars).</span>
                 </span>
               </span>
-              <input type="number" id="set-starGeometryRadius" step="0.1" />
+              <input type="number" id="set-starGeometryRadius" required step="0.1" min="0.1" />
             </label>
             <label>
               <span class="label-text">
@@ -313,7 +313,7 @@
                   <span class="tooltip-text">Number of geometry segments for star spheres (higher = smoother but slower).</span>
                 </span>
               </span>
-              <input type="number" id="set-starGeometrySegments" />
+              <input type="number" id="set-starGeometrySegments" required min="3" step="1" />
             </label>
           </div>
         </div>
