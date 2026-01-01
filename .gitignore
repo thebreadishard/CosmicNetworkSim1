@@ -32,6 +32,7 @@ coverage/
 .nyc_output/
 playwright-report/
 test-results/
+canvas-greenline-check.png
 
 # Temporary files
 *.tmp
