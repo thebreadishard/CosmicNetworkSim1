@@ -150,6 +150,20 @@ export class Star {
     }
   }
 
+  /**
+   * Set visibility of star mesh (for LOD system)
+   */
+  setVisible(visible: boolean): void {
+    this.mesh.visible = visible;
+  }
+
+  /**
+   * Check if star mesh is currently visible
+   */
+  isVisible(): boolean {
+    return this.mesh.visible;
+  }
+
   update(deltaTime: number): void {
     this.age += deltaTime;
     

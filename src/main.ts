@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { NetworkManager } from './networkManager';
 import { SimulationSettings } from './settings';
+import { LODManager, LODLevel } from './lod/LODManager';
+import { GalaxyCluster } from './lod/GalaxyCluster';
 
 /**
  * Main application entry point
@@ -20,6 +22,10 @@ class CosmicNetworkSimulator {
   private flashOverlay: HTMLDivElement;
   private hasSimulationStarted: boolean;
   
+  // LOD system
+  private lodManager: LODManager | null = null;
+  private galaxyClusters: GalaxyCluster[] = [];
+  
   // Performance: Cache DOM elements instead of querying every frame
   private statsElements = {
     starCount: null as HTMLElement | null,
@@ -37,7 +43,7 @@ class CosmicNetworkSimulator {
     this.isPaused = true;
     this.timeScale = 1.0;
     this.showWaves = true;
-    this.showSupernovae = true;
+    this.showSupernovae = false;
     this.hasSimulationStarted = false;
     this.scene = this.createScene();
     this.camera = this.createCamera();
@@ -55,6 +61,10 @@ class CosmicNetworkSimulator {
     // Generate galaxies and dust using settings
     this.networkManager.initializeGalaxy(this.networkManager.settings.initialStarCount);
     this.networkManager.generateDustClouds(this.networkManager.settings.initialDustCloudCount);
+    
+    // Initialize LOD system
+    this.initializeLODSystem();
+    
     // Position camera using settings
     const armPos = this.networkManager.getArmPosition?.(0, 0, this.networkManager.settings.cameraInitialArmPosition);
     if (armPos) {
@@ -76,6 +86,92 @@ class CosmicNetworkSimulator {
     this.statsElements.waveCount = document.getElementById('wave-count');
     this.statsElements.connectionCount = document.getElementById('connection-count');
     this.statsElements.cameraPos = document.getElementById('camera-pos');
+  }
+
+  /**
+   * Initialize the Level of Detail system
+   */
+  private initializeLODSystem(): void {
+    const galaxyCenters = this.networkManager.getGalaxyCenters();
+    
+    if (galaxyCenters.length === 0) {
+      console.warn('No galaxy centers available for LOD system');
+      return;
+    }
+    
+    // Create LOD manager with adjusted thresholds
+    // Delay medium LOD to larger zoom distance (15000 units)
+    this.lodManager = new LODManager(this.camera, galaxyCenters, {
+      closeToMedium: 15000,
+      mediumToFar: 20000
+    });
+    
+    // Create one cluster per galaxy (not one cluster for all galaxies)
+    this.galaxyClusters = [];
+    
+    // Group stars by galaxy - find stars closest to each galaxy center
+    for (let i = 0; i < galaxyCenters.length; i++) {
+      const center = galaxyCenters[i];
+      
+      // Find stars belonging to this galaxy (within reasonable radius)
+      const galaxyStars = this.networkManager.stars.filter(star => {
+        return star.galaxyCenter.distanceTo(center) < 50; // Stars track their galaxy center
+      });
+      
+      // Create cluster for this galaxy
+      const cluster = new GalaxyCluster([center], galaxyStars);
+      
+      // Create LOD sprite representations
+      cluster.createMediumLODSprite();
+      cluster.createFarLODSprite();
+      
+      // Add sprites to scene (initially hidden)
+      if (cluster.mediumLODSprite) {
+        this.scene.add(cluster.mediumLODSprite);
+      }
+      if (cluster.farLODSprite) {
+        this.scene.add(cluster.farLODSprite);
+      }
+      
+      this.galaxyClusters.push(cluster);
+    }
+    
+    // Set up LOD level change callback
+    this.lodManager.onLevelChange = (oldLevel: LODLevel, newLevel: LODLevel) => {
+      this.handleLODLevelChange(oldLevel, newLevel);
+    };
+    
+    console.log('LOD system initialized with', this.galaxyClusters.length, 'galaxy clusters');
+  }
+
+  /**
+   * Handle LOD level transitions
+   */
+  private handleLODLevelChange(oldLevel: LODLevel, newLevel: LODLevel): void {
+    console.log(`LOD level changed: ${oldLevel} → ${newLevel}`);
+    
+    // Apply LOD change to all galaxy clusters
+    for (const cluster of this.galaxyClusters) {
+      switch (newLevel) {
+        case LODLevel.CLOSE:
+          // Show full detail: individual stars
+          cluster.setStarsVisible(true);
+          cluster.hideLODRepresentations();
+          break;
+          
+        case LODLevel.MEDIUM:
+          // Hide individual stars, show galaxy sprites
+          cluster.setStarsVisible(false);
+          cluster.showMediumLOD(this.scene);
+          break;
+          
+        case LODLevel.FAR:
+          // Show far LOD representation
+          cluster.setStarsVisible(false);
+          cluster.showFarLOD(this.scene);
+          break;
+      }
+    }
   }
 
   private createScene(): THREE.Scene {
@@ -496,6 +592,11 @@ class CosmicNetworkSimulator {
     requestAnimationFrame(() => this.animate());
     
     const deltaTime = this.clock.getDelta();
+    
+    // Update LOD system based on camera position
+    if (this.lodManager) {
+      this.lodManager.update();
+    }
     
     // Update simulation with time scaling and pause control
     if (!this.isPaused) {

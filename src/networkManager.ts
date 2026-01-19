@@ -36,6 +36,14 @@ export class NetworkManager {
   onSupernovaFlash?: () => void;
   showWaves: boolean = true;
 
+  /**
+   * Get the centers of all galaxies in the simulation
+   * Used by LOD system to calculate camera distances
+   */
+  getGalaxyCenters(): Vector3[] {
+    return this.lastGalaxies.map(g => g.center.clone());
+  }
+
   constructor(scene: Scene, settings?: SimulationSettings) {
     this.scene = scene;
     // Use fresh settings instead of loading from localStorage to ensure updates apply

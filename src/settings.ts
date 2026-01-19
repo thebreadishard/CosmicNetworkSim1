@@ -147,12 +147,12 @@ export class SimulationSettings {
   cameraInitialHeight: number = 60;
   cameraFOV: number = 50;
   cameraNear: number = 0.1;
-  cameraFar: number = 5000;
+  cameraFar: number = 15000;
   
   // Camera Controls
   controlsDampingFactor: number = 0.05;
   controlsMinDistance: number = 10;
-  controlsMaxDistance: number = 5000;
+  controlsMaxDistance: number = 15000;
   controlsKeyPanSpeed: number = 50;
   
   // Background Starfield
