@@ -27,7 +27,7 @@ A real-time 3D visualization of galactic civilizations emerging and connecting t
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/CosmicNetworkSim1.git
+git clone https://github.com/thebreadishard/CosmicNetworkSim1.git
 cd CosmicNetworkSim1
 
 # Install dependencies
