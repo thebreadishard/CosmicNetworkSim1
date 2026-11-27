@@ -14,16 +14,16 @@
     "procedural",
     "space"
   ],
-  "author": "CosmicNetworkSim Contributors",
+  "author": "Frederic Petrignani",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/CosmicNetworkSim1.git"
+    "url": "https://github.com/thebreadishard/CosmicNetworkSim1.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/CosmicNetworkSim1/issues"
+    "url": "https://github.com/thebreadishard/CosmicNetworkSim1/issues"
   },
-  "homepage": "https://github.com/yourusername/CosmicNetworkSim1#readme",
+  "homepage": "https://github.com/thebreadishard/CosmicNetworkSim1#readme",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
