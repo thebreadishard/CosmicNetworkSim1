@@ -18,8 +18,11 @@ branch (`feature/cosmic-web-lod`) accumulated ~1,250 lines that never merged.
 5. **Independent review.** Spawn the `reviewer` subagent (`.vibe/agents/reviewer.toml`)
    with the diff and the issue's acceptance criteria. It reviews without seeing
    the implementer's reasoning. Address its findings.
-6. **Test.** Spawn the `tester` subagent (`.vibe/agents/tester.toml`) to run the
-   e2e suite and exercise the changed behavior. Fix failures.
+6. **Test — only after the reviewer approves.** Spawn the `tester` subagent
+   (`.vibe/agents/tester.toml`) to run the e2e suite and exercise the changed
+   behavior. Do not start the tester while review findings are unresolved: if
+   the review leads to code changes, the test run would be wasted and would
+   validate stale code. Fix findings first, then test.
 7. **PR.** Push the branch and open a PR referencing the issue
    (`gh pr create`).
 8. **Manual check.** The user opens the PR branch (dev server or preview) and
