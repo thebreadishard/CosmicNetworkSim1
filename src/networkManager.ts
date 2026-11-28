@@ -523,10 +523,6 @@ export class NetworkManager {
     return this.waves;
   }
 
-  reset() {
-    this.clearSceneObjects();
-  }
-
   private clearSceneObjects() {
     // Dispose arm glows
     for (const armGlow of this.armGlows) {

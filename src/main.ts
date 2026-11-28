@@ -33,6 +33,7 @@ class CosmicNetworkSimulator {
   private statsUpdateInterval: number = 0.25; // Update 4 times per second instead of 60
   private validationSetup: boolean = false; // Track if validation listeners are attached
   private galaxyGlow: GalaxyGlowLayer | null = null;
+  private backgroundStars: THREE.Points | null = null;
 
   constructor() {
     this.clock = new THREE.Clock();
@@ -84,23 +85,22 @@ class CosmicNetworkSimulator {
   private createScene(): THREE.Scene {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000510);
-    
-    // Add starfield background
-    this.addStarField(scene);
+
+    // Add starfield background (defaults at boot; rebuilt from saved settings on reset)
+    this.addStarField(scene, new SimulationSettings());
     
     return scene;
   }
 
-  private addStarField(scene: THREE.Scene): void {
-    const settings = new SimulationSettings();
-    const starGeometry = new THREE.BufferGeometry();
+  private addStarField(scene: THREE.Scene, settings: SimulationSettings): void {
     const starCount = settings.backgroundStarCount;
     const positions = new Float32Array(starCount * 3);
-    
+
     for (let i = 0; i < starCount * 3; i++) {
       positions[i] = (Math.random() - 0.5) * settings.backgroundStarSpread;
     }
-    
+
+    const starGeometry = new THREE.BufferGeometry();
     starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const starMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
@@ -108,9 +108,22 @@ class CosmicNetworkSimulator {
       transparent: true,
       opacity: settings.backgroundStarOpacity
     });
-    
-    const stars = new THREE.Points(starGeometry, starMaterial);
-    scene.add(stars);
+
+    this.backgroundStars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(this.backgroundStars);
+  }
+
+  /**
+   * Rebuild the background starfield with the given settings (called on reset,
+   * since settings changes only apply then).
+   */
+  private rebuildBackgroundStars(settings: SimulationSettings): void {
+    if (this.backgroundStars) {
+      this.scene.remove(this.backgroundStars);
+      this.backgroundStars.geometry.dispose();
+      (this.backgroundStars.material as THREE.PointsMaterial).dispose();
+    }
+    this.addStarField(this.scene, settings);
   }
 
   private createCamera(): THREE.PerspectiveCamera {
@@ -560,12 +573,30 @@ class CosmicNetworkSimulator {
   }
 
   private resetSimulation(): void {
-    // Reset network manager (clears all objects from scene)
-    this.networkManager.reset();
-    
-    // Reinitialize galaxy using current settings
-    this.networkManager.initializeGalaxy(this.networkManager.settings.initialStarCount);
-    this.networkManager.generateDustClouds(this.networkManager.settings.initialDustCloudCount);
+    // Saved settings are the source on reset: the modal only writes to
+    // localStorage, so without reloading them here "apply on next Reset"
+    // would never happen. A fresh NetworkManager rebuilds the spatial grids
+    // so derived cell sizes match the new values.
+    const saved = SimulationSettings.load();
+    saved.sanitize();
+    this.networkManager = new NetworkManager(this.scene, saved);
+    this.networkManager.onSupernovaFlash = () => this.triggerFlash();
+
+    // Reapply camera and controls parameters that were set from settings at boot
+    this.camera.fov = saved.cameraFOV;
+    this.camera.near = saved.cameraNear;
+    this.camera.far = saved.cameraFar;
+    this.camera.updateProjectionMatrix();
+    this.controls.dampingFactor = saved.controlsDampingFactor;
+    this.controls.minDistance = saved.controlsMinDistance;
+    this.controls.maxDistance = saved.controlsMaxDistance;
+
+    // Rebuild the background starfield with the new settings
+    this.rebuildBackgroundStars(saved);
+
+    // Reinitialize galaxy using the saved settings
+    this.networkManager.initializeGalaxy(saved.initialStarCount);
+    this.networkManager.generateDustClouds(saved.initialDustCloudCount);
     this.rebuildGalaxyGlow();
 
     // Reset clock and flags
