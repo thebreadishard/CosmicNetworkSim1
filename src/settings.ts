@@ -177,6 +177,9 @@ export class SimulationSettings {
   // Arm Glow Visual
   armGlowSpacing: number = 8; // Units between glow sprites along spiral arms
 
+  // Galaxy Glow (far-zoom sprite fallback)
+  galaxyGlowPixelThreshold: number = 60; // Show glow sprite while galaxy's on-screen radius is below this many pixels; 0 disables
+
   private static readonly STORAGE_KEY = 'cosmicNetworkSimSettings';
 
   /**
@@ -380,6 +383,7 @@ export class SimulationSettings {
     this.dustCloudRadiusRange = Math.max(0.1, this.dustCloudRadiusRange);
     this.spiralArmWidthMultiplier = Math.max(0.01, this.spiralArmWidthMultiplier);
     this.dustCloudArmWidthMultiplier = Math.max(0.01, this.dustCloudArmWidthMultiplier);
+    this.galaxyGlowPixelThreshold = Math.max(0, this.galaxyGlowPixelThreshold);
     this.cameraInitialHeight = Math.max(10, this.cameraInitialHeight);
     this.cameraFOV = Math.max(10, Math.min(120, this.cameraFOV));
     this.cameraNear = Math.max(0.01, this.cameraNear);
