@@ -523,6 +523,10 @@ export class NetworkManager {
     return this.waves;
   }
 
+  /**
+   * Remove and dispose all scene objects owned by this manager. Call on the
+   * outgoing instance before replacing it (see main.ts resetSimulation).
+   */
   reset() {
     this.clearSceneObjects();
   }
