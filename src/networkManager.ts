@@ -573,6 +573,13 @@ export class NetworkManager {
   }
 
   /**
+   * Snapshot of the generated galaxies (center + radius) for visual layers.
+   */
+  getGalaxies(): Array<{ center: Vector3; radius: number }> {
+    return this.lastGalaxies.map(g => ({ center: g.center.clone(), radius: g.radius }));
+  }
+
+  /**
    * Return a sample position along a given galaxy arm.
    * galaxyIndex: index into lastGalaxies (0 = first galaxy)
    * armIndex: which arm (0..arms-1)

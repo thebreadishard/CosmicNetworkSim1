@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { NetworkManager } from './networkManager';
 import { SimulationSettings } from './settings';
+import { GalaxyGlowLayer } from './galaxyGlow';
 
 /**
  * Main application entry point
@@ -31,6 +32,7 @@ class CosmicNetworkSimulator {
   private lastStatsUpdate: number = 0;
   private statsUpdateInterval: number = 0.25; // Update 4 times per second instead of 60
   private validationSetup: boolean = false; // Track if validation listeners are attached
+  private galaxyGlow: GalaxyGlowLayer | null = null;
 
   constructor() {
     this.clock = new THREE.Clock();
@@ -55,6 +57,7 @@ class CosmicNetworkSimulator {
     // Generate galaxies and dust using settings
     this.networkManager.initializeGalaxy(this.networkManager.settings.initialStarCount);
     this.networkManager.generateDustClouds(this.networkManager.settings.initialDustCloudCount);
+    this.rebuildGalaxyGlow();
     // Position camera using settings
     const armPos = this.networkManager.getArmPosition?.(0, 0, this.networkManager.settings.cameraInitialArmPosition);
     if (armPos) {
@@ -492,9 +495,23 @@ class CosmicNetworkSimulator {
     });
   }
 
+  /**
+   * Rebuild the far-zoom galaxy glow sprites from the current galaxies.
+   * Called after galaxy (re)generation; sprites are created once here, never
+   * per frame.
+   */
+  private rebuildGalaxyGlow(): void {
+    this.galaxyGlow?.dispose();
+    this.galaxyGlow = new GalaxyGlowLayer(
+      this.scene,
+      this.networkManager.getGalaxies(),
+      this.networkManager.settings
+    );
+  }
+
   private animate(): void {
     requestAnimationFrame(() => this.animate());
-    
+
     const deltaTime = this.clock.getDelta();
     
     // Update simulation with time scaling and pause control
@@ -534,7 +551,10 @@ class CosmicNetworkSimulator {
     
     // Update controls
     this.controls.update();
-    
+
+    // Far-zoom galaxy glow sprites (visibility only; no allocations)
+    this.galaxyGlow?.update(this.camera);
+
     // Render
     this.renderer.render(this.scene, this.camera);
   }
@@ -546,7 +566,8 @@ class CosmicNetworkSimulator {
     // Reinitialize galaxy using current settings
     this.networkManager.initializeGalaxy(this.networkManager.settings.initialStarCount);
     this.networkManager.generateDustClouds(this.networkManager.settings.initialDustCloudCount);
-    
+    this.rebuildGalaxyGlow();
+
     // Reset clock and flags
     this.clock = new THREE.Clock();
     this.hasSimulationStarted = false;
