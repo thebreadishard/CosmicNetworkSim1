@@ -579,8 +579,13 @@ class CosmicNetworkSimulator {
     // so derived cell sizes match the new values.
     const saved = SimulationSettings.load();
     saved.sanitize();
+    // Remove the outgoing simulation's objects from the scene before it is
+    // replaced, otherwise every Reset would stack a second frozen simulation.
+    this.networkManager.reset();
     this.networkManager = new NetworkManager(this.scene, saved);
     this.networkManager.onSupernovaFlash = () => this.triggerFlash();
+    // Preserve the waves toggle across the instance swap
+    this.networkManager.showWaves = this.showWaves;
 
     // Reapply camera and controls parameters that were set from settings at boot
     this.camera.fov = saved.cameraFOV;
