@@ -69,16 +69,17 @@ export class GalaxyGlowLayer {
    */
   update(camera: THREE.PerspectiveCamera): void {
     const threshold = this.settings.galaxyGlowPixelThreshold;
+    if (threshold <= 0) {
+      for (const sprite of this.sprites) {
+        sprite.visible = false;
+      }
+      return;
+    }
     const halfFovTan = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
     const heightPx = window.innerHeight;
     camera.getWorldDirection(this.cameraDir);
 
     for (const sprite of this.sprites) {
-      if (threshold <= 0) {
-        sprite.visible = false;
-        continue;
-      }
-
       this.toSprite.subVectors(sprite.position, camera.position);
       const dist = this.toSprite.length();
 
@@ -89,7 +90,7 @@ export class GalaxyGlowLayer {
       }
 
       // Perspective projection: pixels per world unit at the sprite's distance
-      const pixelsPerUnit = (heightPx as number) / (2 * dist * halfFovTan);
+      const pixelsPerUnit = heightPx / (2 * dist * halfFovTan);
       const onScreenRadiusPx = (sprite.scale.x / 2) * pixelsPerUnit;
       sprite.visible = onScreenRadiusPx < threshold;
     }
